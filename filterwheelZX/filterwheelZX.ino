@@ -4,7 +4,7 @@
 #include <EEPROM.h>
 
 //Global declarations
-word filterPos[] = { 0, 435, 855, 1255, 1665, 2075, 0 }; //play with these to align each filter - only need to do it once.
+word filterPos[] = { 0, 430, 850, 1250, 1660, 2070, 0 }; //play with these to align each filter - only need to do it once.
 word posOffset[] = { 0, 90, 72, 72, 72, 72 }; //todo - make this add/subtract from offset and impliment for online tuning in indi
 bool Error = false;                      // Error flag
 String inLine;                           // Current command.
@@ -13,7 +13,7 @@ byte currPos = 1;                        // Start up with 1
 int newPos = 1;                          // Just start somewhere
 bool cmdOK = false;                      // Command ok ?
 int PWMvalue = 128;                      // Set PWM to half
-
+int CalibrationOffset = 0;               //for indi info
 
 
 // Hall pin definition
@@ -137,9 +137,9 @@ void loop() {
   // Initialize, restarts and moves to filter position 1.
   if ( inLine == "R1" ) {
     cmdOK = true;
-    Locate_Home();  // currPos will be 1.
-    // currPos = 1;
-    delay(1000);
+     currPos = 1;
+     Locate_Home();  // currPos will be 1.
+    //Delay(1000);
     Serial.print("P");
     Serial.println(currPos);
   }
@@ -183,6 +183,7 @@ void loop() {
 
   // Calibrate, No return value displayed.
   if ( inLine == "R6" ) {
+    Locate_Home();
     cmdOK = true;
     delay(1000);
   }
@@ -205,15 +206,13 @@ void loop() {
     cmdOK = true;
     Serial.print("P");
     Serial.println(currPos);
-  }
-
+        }
 
   // Serial number
   if ( inLine == "I3" ) {
     cmdOK = true;
     Serial.println("Arduino Xagyl Interface v5.0sm-ULN");
   }
-
 
   // Display the maximum rotation speed - "MaxSpeed XXX%"
   if ( inLine == "I4" ) {
@@ -270,7 +269,6 @@ void loop() {
     Serial.println( posOffset[1] );
   }
 
-
   // Display sensor position offset for filter position Value - "PX Offset XX"
   if ( inLine == "O2" ) {
     cmdOK = true;
@@ -279,7 +277,6 @@ void loop() {
     Serial.print(" Offset ");
     Serial.println( posOffset[2] );
   }
-
 
   // Display sensor position offset for filter position Value - "PX Offset XX"
   if ( inLine == "O3" ) {
@@ -460,7 +457,7 @@ currPos = 1;
 }
 
 
-// Home *******************************************************
+//            *********Find Home******** 
 void Locate_Home() {
   int HallValue = digitalRead(SENSOR);    // read the hall sensor value
   if (HallValue == HIGH) {
