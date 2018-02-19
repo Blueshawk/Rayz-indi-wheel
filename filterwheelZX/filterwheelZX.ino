@@ -4,9 +4,8 @@
 #include <EEPROM.h>
 
 //Global declarations
-word filterPos[] = { 0, 0, 420, 820, 1230, 1640, 0 }; //play with these to align each filter - only need to do it once. 
+word filterPos[] = { 0, 435, 855, 1255, 1665, 2075, 0 }; //play with these to align each filter - only need to do it once.
 word posOffset[] = { 0, 90, 72, 72, 72, 72 }; //todo - make this add/subtract from offset and impliment for online tuning in indi
-int CalibrationOffset = 435;              // Steps required to move to first filter position after calibration is done
 bool Error = false;                      // Error flag
 String inLine;                           // Current command.
 char command;                            // Command
@@ -19,7 +18,7 @@ int PWMvalue = 128;                      // Set PWM to half
 
 // Hall pin definition
 /*  current wiring
-     A0 = d0 digital(comparator)output
+    A0 = d0 digital(comparator)output
     A1 = vcc
     A2 = gnd
     A3 = a0 analog out
@@ -31,6 +30,7 @@ const int d0 = A3;// hall effect analog input - not used 2/18/18
 
 // Motor definitions
 #define STEPS 4                        // 28BYJ-48 steps 4 or 8
+
 // Motor pin definitions
 #define motorPin1  9         //6 IN1 on ULn2003
 #define motorPin2  6         //9 IN2 on ULn2003
@@ -108,7 +108,7 @@ void loop() {
   if ( command == 'G' && ( newPos >= 1 || newPos <= 5 ) ) {
 
     if ( newPos == 1 ) {
-      Locate_Slot_1();
+      Locate_Home();
     }
 
     if ( newPos > 5 ) {
@@ -127,7 +127,7 @@ void loop() {
   // Hard reboot, do same as R1.
   if ( inLine == "R0" ) {
     cmdOK = true;
-    Locate_Slot_1();  // currPos will be 1.
+    Locate_Home();  // currPos will be 1.
     Serial.print("P");
     Serial.println(currPos);
     delay(100);
@@ -137,7 +137,7 @@ void loop() {
   // Initialize, restarts and moves to filter position 1.
   if ( inLine == "R1" ) {
     cmdOK = true;
-    Locate_Slot_1();  // currPos will be 1.
+    Locate_Home();  // currPos will be 1.
     // currPos = 1;
     delay(1000);
     Serial.print("P");
@@ -145,7 +145,7 @@ void loop() {
   }
 
 
-  // Reset all calibration values to 0.
+  // Do not! Reset all calibration values to 0.
   if ( inLine == "R2" ) {
     cmdOK = true;
     /*filterPos[0] = 0;
@@ -455,88 +455,89 @@ void stupidInit() {
     apa = posOffset[cnt];
     apa = filterPos[cnt];
   }
-
-  Locate_Slot_1();  // Just find slot 1
+currPos = 1;
+  Locate_Home();  // Rotate to index 0 and then move to slot 1.
 }
 
 
-// Try to find slot 1 *******************************************************
-void Locate_Slot_1() {
+// Home *******************************************************
+void Locate_Home() {
   int HallValue = digitalRead(SENSOR);    // read the hall sensor value
-   if (HallValue == HIGH){ stepper.runToNewPosition((filterPos[currPos])-300);delay(500);} //move off magnet before cal
-   HallValue = digitalRead(SENSOR);    // read the hall sensor value
-  digitalWrite(13, HIGH); // Flash LEDs for Move
+  if (HallValue == HIGH) {
+    stepper.runToNewPosition((filterPos[currPos]) - 300);  //move off magnet before homing
+    delay(200); //avoid plugging motor - allow wheel to stop.
+  }
+  HallValue = digitalRead(SENSOR);    // recheck the hall sensor value
   stepper.moveTo(10000);
-  while (HallValue == LOW)  {
+  if (stepper.distanceToGo() <= 0 ) { Serial.println("Error:ET Can't find home");}
+    while (HallValue == LOW)  {                     //while hall is LOW just run motor and read sensor
     stepper.run();
-    HallValue = digitalRead(SENSOR);
-  }                                               //when hall goes low set position and move to first offset
-  stepper.stop();
-  stepper.setCurrentPosition(0);
-  stepper.runToNewPosition(CalibrationOffset);// Move to filterPos 1. Blocks events - so in position when shooting starts.
-  stepper.setCurrentPosition(0);
-  digitalWrite(13, LOW); // Disable LEDs after Move
-  //revolutionCounter = 0;
-  currPos = 1;
-
-}
-
-// Move to slots 2..5 ***************************************************
-// Always run wheel the same direction to avoid backlash issues.
-
-void Locate_Slot_x() {
-  if ( filterPos[newPos] < filterPos[currPos] ) { Locate_Slot_1();}
-  stepper.runToNewPosition(filterPos[newPos]);          // Select filterPos[newPos] from array
-  currPos = newPos;             // Tell caller this is the new requested position
-  return;
-}
-
-// Calibrate wheel command : R6
-void slotCalibrate() {
-  Locate_Slot_1();
-  return;
-}
-
-// Show some values and reset error flag.
-void debugProcedure() {
-  int i = 0;
-  word Value;
-
-  //EEPROM.write(address, value);
-  for ( i = 0; i < 6 ; i++ ) {
-    EEPROM.write((i * 2) + 50, highByte(filterPos[i]));
-    EEPROM.write((i * 2) + 51, lowByte(filterPos[i]));
-  }
-  Serial.println("Default values written to EEPROM!!");
-
-  Serial.println("\n");
-  Serial.println("-------------------------------");
-
-  Serial.print("Current Offset : ");
-  Serial.println( posOffset[currPos] );
-  Serial.println();
-
-  Serial.println("Values per memorycell");
-  for ( i = 0; i < 6 ; i++ ) {
-    Value = word( EEPROM.read(i * 2 + 50), EEPROM.read(i * 2 + 51));
-    Serial.print("Pos : ");
-    Serial.print( i );
-    Serial.print(" : ");
-    Serial.println( Value );
+     HallValue = digitalRead(SENSOR);
+    }                                               //when hall goes low set position and move to first offset
+    stepper.stop();
+    stepper.setCurrentPosition(0);
+    currPos = 0;
+        Locate_Slot_x();
   }
 
-  Serial.println("");
-  Serial.print("Bytes in EEPROM : ");
-  Serial.println(EEPROM.length());
-  Serial.println("");
-  delay(100);
+  // Move to slots 2..5 ***************************************************
+  // Always run wheel the same direction to avoid backlash issues.
+
+  void Locate_Slot_x() {
+    if ( filterPos[newPos] < filterPos[currPos] ) {
+      Locate_Home();
+    }
+    stepper.runToNewPosition(filterPos[newPos]);          // Select filterPos[newPos] from array
+    currPos = newPos;             // Tell caller this is the new requested position
     return;
- 
-  if ( !Error ) {
-    Serial.println("Normal operation resumed");
   }
 
-  Error = false;
-  return;
-}
+  // Calibrate wheel command : R6
+  void slotCalibrate() {
+    Locate_Home();
+    return;
+  }
+
+  // Show some values and reset error flag.
+  void debugProcedure() {
+    int i = 0;
+    word Value;
+
+    //EEPROM.write(address, value);
+    for ( i = 0; i < 6 ; i++ ) {
+      EEPROM.write((i * 2) + 50, highByte(filterPos[i]));
+      EEPROM.write((i * 2) + 51, lowByte(filterPos[i]));
+    }
+    Serial.println("Default values written to EEPROM!!");
+
+    Serial.println("\n");
+    Serial.println("-------------------------------");
+
+    Serial.print("Current Offset : ");
+    Serial.println( posOffset[currPos] );
+    Serial.println();
+
+    Serial.println("Values per memorycell");
+    for ( i = 0; i < 6 ; i++ ) {
+      Value = word( EEPROM.read(i * 2 + 50), EEPROM.read(i * 2 + 51));
+      Serial.print("Pos : ");
+      Serial.print( i );
+      Serial.print(" : ");
+      Serial.println( Value );
+    }
+
+    Serial.println("");
+    Serial.print("Bytes in EEPROM : ");
+    Serial.println(EEPROM.length());
+    Serial.println("");
+    delay(100);
+    return;
+
+    if ( !Error ) {
+      Serial.println("Normal operation resumed");
+    }
+
+    Error = false;
+    return;
+  }
 
