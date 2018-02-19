@@ -2,9 +2,10 @@
    An Arduino Nano stepper driven Indi compatible DIY filter wheel for remote astronomy/AP 
 
 By: Ray Wells
+
 CC: Markku Siitonen who provided the skeleton and protocol code. 
 
-This motorized remote filter wheel uses an Arduino Nano with a 24byj-48 gearhead stepper motor and the uln2003 driver board that comes with it.  It is powered by 5v from the usb port in bipolar configuration.
+  This motorized remote filter wheel uses an Arduino Nano with a 24byj-48 gearhead stepper motor and the uln2003 driver board that comes with it.  It is powered by 5v from the usb port in bipolar configuration.
 
 Hardware
 A generic 5 position manual filter wheel with the stepper's double flat shaft epoxied into the wheel center screw hole (after removing the screw of course).
