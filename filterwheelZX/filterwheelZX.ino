@@ -183,6 +183,7 @@ void loop() {
 
   // Calibrate, No return value displayed.
   if ( inLine == "R6" ) {
+    currPos=1;
     Locate_Home();
     cmdOK = true;
     delay(1000);
@@ -489,11 +490,7 @@ void Locate_Home() {
     return;
   }
 
-  // Calibrate wheel command : R6
-  void slotCalibrate() {
-    Locate_Home();
-    return;
-  }
+  
 
   // Show some values and reset error flag.
   void debugProcedure() {
