@@ -4,7 +4,7 @@
 #include <EEPROM.h>
 
 //Global declarations
-word filterPos[] = { 0, 430, 850, 1250, 1660, 2070, 0 }; //play with these to align each filter - only need to do it once.
+word filterPos[] = { 0, 455, 865, 1275, 1685, 2090}; //play with these to align each filter - only need to do it once.
 word posOffset[] = { 0, 90, 72, 72, 72, 72 }; //todo - make this add/subtract from offset and impliment for online tuning in indi
 bool Error = false;                      // Error flag
 String inLine;                           // Current command.
@@ -139,7 +139,7 @@ void loop() {
     cmdOK = true;
      currPos = 1;
      Locate_Home();  // currPos will be 1.
-    //Delay(1000);
+    delay(500);
     Serial.print("P");
     Serial.println(currPos);
   }
@@ -148,16 +148,19 @@ void loop() {
   // Do not! Reset all calibration values to 0.
   if ( inLine == "R2" ) {
     cmdOK = true;
+     currPos = 1;
+     Locate_Home();  // currPos will be 1.
+    delay(500);
+    
+   //Calibration removal not possible because we are using a fixed preset table for now.
     /*filterPos[0] = 0;
       filterPos[1] = 0;
       filterPos[2] = 0;
       filterPos[3] = 0;
       filterPos[4] = 0;
       filterPos[5] = 0;
-      filterPos[6] = 0;
-      delay(1000);*/
-    Serial.println("Calibration removal not possible because... /cow");
-  }
+      delay(1000);
+  */}
 
 
   // Reset Jitter value to 1, displays "Jitter 1"
@@ -212,7 +215,7 @@ void loop() {
   // Serial number
   if ( inLine == "I3" ) {
     cmdOK = true;
-    Serial.println("Arduino Xagyl Interface v5.0sm-ULN");
+    Serial.println("Arduino Xagyl Wheel Emu v5.2sm-ULN");
   }
 
   // Display the maximum rotation speed - "MaxSpeed XXX%"
@@ -444,19 +447,17 @@ void loop() {
 }   ////////// End of main loop.. //////////
 
 
-// For some reason this is needed.
+// I think this sets up the filter slot and offset array?
 void stupidInit() {
   int cnt;
   word apa;
-
-  for ( cnt = 0; cnt != 7; cnt = cnt + 1 ) {
+ for ( cnt = 0; cnt != 5; cnt = cnt + 1 ) {
     apa = posOffset[cnt];
     apa = filterPos[cnt];
   }
 currPos = 1;
   Locate_Home();  // Rotate to index 0 and then move to slot 1.
 }
-
 
 //            *********Find Home******** 
 void Locate_Home() {
@@ -512,7 +513,7 @@ void Locate_Home() {
     Serial.println();
 
     Serial.println("Values per memorycell");
-    for ( i = 0; i < 6 ; i++ ) {
+    for ( i = 0; i < 5 ; i++ ) {
       Value = word( EEPROM.read(i * 2 + 50), EEPROM.read(i * 2 + 51));
       Serial.print("Pos : ");
       Serial.print( i );
