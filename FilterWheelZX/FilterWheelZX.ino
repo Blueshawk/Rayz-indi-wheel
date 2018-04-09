@@ -215,7 +215,7 @@ void loop() {
   // Serial number
   if ( inLine == "I3" ) {
     cmdOK = true;
-    Serial.println("Arduino Xagyl Wheel Emu v5.2sm-ULN");
+    Serial.println("Nano Wheel ULN");
   }
 
   // Display the maximum rotation speed - "MaxSpeed XXX%"
