@@ -15,7 +15,6 @@ Indi compatability
 USB Protocol emulates the Xagyl filter wheel in order to communicate with the existing Indi/Ekos driver.
 Due to design restrictions, some buttons do nothing in the indi control panel but indexing works for all 5 positions.
 
-Todo: arrange the offsets so they can be used to fine tune position. This will likely be a converter where 0-100 becomes -50 to +50. 
+Todo: arrange the serial offsets so they can be used to fine tune position. This will likely be a converter where 0-100 becomes -50 to +50. 
 
-
-Known bugs. Due to my position of the HET, moving from filter5 to filter1 results in a position error due to the HET being already on the magnet.
+Known bugs. Due to my position of the HET, moving from filter5 to filter1 results in a position error due to the HET being already on the magnet. ---edit: I fixed this by having it back up a bit to get off the het and retry the home. The only time it runs reverse.
