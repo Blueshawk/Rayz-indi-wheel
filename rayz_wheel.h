@@ -33,7 +33,7 @@ typedef struct
     char serial[16];
 } SimData;
 
-class XAGYLWheel : public INDI::FilterWheel
+class RAYZWheel : public INDI::FilterWheel
 {
   public:
     typedef enum {
@@ -50,8 +50,8 @@ class XAGYLWheel : public INDI::FilterWheel
     } GET_COMMAND;
     typedef enum { SET_SPEED, SET_JITTER, SET_THRESHOLD, SET_PULSE_WITDH, SET_POSITION } SET_COMMAND;
 
-    XAGYLWheel();
-    virtual ~XAGYLWheel();
+    RAYZWheel();
+    virtual ~RAYZWheel();
 
     virtual bool initProperties() override;
     virtual bool updateProperties() override;

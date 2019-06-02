@@ -1,0 +1,41 @@
+todo:
+
+make speed and accel controls work +protocol for it.
+
+
+
+indi:
+make serial send for Fnnn = offset -- sets offset for current filter only. They have to be tested repeatedly for centering anyway.
+
+make store offsets to eprom command ---"G0" does it
+
+
+Remove from indi driver:
+  Display jitter I5 
+ display filter posisiton sensor I7
+  Move ccw/cw  (0, ( , ), )0 
+  Pulse Width XXXXXuS "M0" and "N0"
+  Threshold XX "{0" and "}0"
+  Jitter window "[0" "]0"
+  Reset Jitter "R3" 
+  maxspeed to 100% "R4" 
+  Reset Threshold value to 30 "R5" 
+  Calibrate "R6"
+  pulse width xxxxxus I9
+ 
+  
+  
+
+
+document extra protocol commands:
+T0 = show hall effect state
+R2 = reset all offsets to zero
+
+
+offsets:
+P1 Offset 120
+P2 Offset 300
+P3 Offset 220
+P4 Offset 300
+P5 Offset 380
+
