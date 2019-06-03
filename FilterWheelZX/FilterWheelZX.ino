@@ -137,7 +137,7 @@ void loop() {
     Serial.println("FilterSlots 5");
   }
 
-  // Send Current filter offset value  - "PX Offset XXXX"
+  // Send filter offset value  - "PX Offset XXXX"
   if ( inLine == "O1" ) {
     cmdOK = true;
     Serial.print("P1");
@@ -145,7 +145,7 @@ void loop() {
     Serial.println( posOffset[1] );
   }
 
-  // Send Current filter offset value  - "PX Offset XXXX"
+  // Send filter offset value  - "PX Offset XXXX"
   if ( inLine == "O2" ) {
     cmdOK = true;
     Serial.print("P2");
@@ -153,7 +153,7 @@ void loop() {
     Serial.println( posOffset[2] );
   }
 
-  // Send Current filter offset value  - "PX Offset XXXX"
+  // Send filter offset value  - "PX Offset XXXX"
   if ( inLine == "O3" ) {
     cmdOK = true;
     Serial.print("P3");
@@ -162,7 +162,7 @@ void loop() {
   }
 
 
-  // Send Current filter offset value  - "PX Offset XXXX"
+  // Send filter offset value  - "PX Offset XXXX"
   if ( inLine == "O4" ) {
     cmdOK = true;
     Serial.print("P4");
@@ -171,7 +171,7 @@ void loop() {
   }
 
 
-  // Send Current filter offset value  - "PX Offset XXXX"
+  // Send filter offset value  - "PX Offset XXXX"
   if ( inLine == "O5" ) {
     cmdOK = true;
     Serial.print("P5");
@@ -190,7 +190,7 @@ void loop() {
     Serial.println(digitalRead(SENSOR));
   }
 
-  // Filter select G1 - G5
+  // Filter select G1 - G5 , also any "Xnnn" numerical input is handled here
   command = inLine.charAt(0);         // command+newPos=Goto pos newPos
   newPos = int(inLine.charAt(1) - 48); // newPos=int -48 if no input..
 
@@ -220,7 +220,7 @@ void loop() {
   if ( command == 'F' ) {
     cmdOK = true;
     newPos = currPos;
-    posOffset[currPos] = (inLine.substring(1).toInt());   //get the offset int value from the serial string
+    posOffset[currPos] = (inLine.substring(1).toInt());   //get the int value from the serial string
     Locate_Home();
     Locate_Slot_x();
     Serial.print("P");
@@ -228,6 +228,9 @@ void loop() {
     Serial.print(" Offset ");
     Serial.println( posOffset[currPos] );
   }
+  if (command == 'S' ) {
+     maxSpeed = (inLine.substring(1).toInt());   //get the int value from the serial string
+     }
 
 
   // Hard reboot --this should be a cpu reset command

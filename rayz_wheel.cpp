@@ -115,7 +115,7 @@ bool RAYZWheel::initProperties()
 
     // Settings
     IUFillNumber(&SettingsN[0], "Speed", "Speed", "%.f", 0, 100, 10., 0.);
-   // IUFillNumber(&SettingsN[1], "Jitter", "Jitter", "%.f", 0, 10, 1., 0.);
+    IUFillNumber(&SettingsN[1], "Store", "Jitter", "%.f", 0, 10, 1., 0.);
    // IUFillNumber(&SettingsN[2], "Threshold", "Threshold", "%.f", 0, 100, 10., 0.);
    // IUFillNumber(&SettingsN[3], "Pulse Width", "Pulse", "%.f", 100, 10000, 100., 0.);
     IUFillNumberVector(&SettingsNP, SettingsN, 1, getDeviceName(), "Settings", "Settings", SETTINGS_TAB, IP_RW, 0, IPS_IDLE);
@@ -275,22 +275,22 @@ bool RAYZWheel::ISNewNumber(const char *dev, const char *name, double values[], 
             {
                 if (strcmp(names[i], SettingsN[SET_SPEED].name) == 0)
                     newSpeed = values[i];
-                else if (strcmp(names[i], SettingsN[SET_JITTER].name) == 0)
-                    newJitter = values[i];
-                if (strcmp(names[i], SettingsN[SET_THRESHOLD].name) == 0)
-                    newThreshold = values[i];
-                if (strcmp(names[i], SettingsN[SET_PULSE_WITDH].name) == 0)
-                    newPulseWidth = values[i];
+               // else if (strcmp(names[i], SettingsN[SET_JITTER].name) == 0)
+                //    newJitter = values[i];
+               // if (strcmp(names[i], SettingsN[SET_THRESHOLD].name) == 0)
+                  //  newThreshold = values[i];
+               // if (strcmp(names[i], SettingsN[SET_PULSE_WITDH].name) == 0)
+                 //   newPulseWidth = values[i];
             }
 
-            bool rc_speed = true, rc_jitter = true, rc_threshold = true, rc_pulsewidth = true;
+            bool rc_speed = true; //rc_jitter = true, rc_threshold = true, rc_pulsewidth = true;
 
             if (newSpeed != SettingsN[SET_SPEED].value)
             {
                 rc_speed = setCommand(SET_SPEED, newSpeed);
                 getMaximumSpeed();
             }
-
+/*
             // Jitter
             while (newJitter != SettingsN[SET_JITTER].value && rc_jitter)
             {
@@ -334,9 +334,9 @@ bool RAYZWheel::ISNewNumber(const char *dev, const char *name, double values[], 
                     rc_pulsewidth &= setCommand(SET_PULSE_WITDH, -1);
                     getPulseWidth();
                 }
-            }
+              } */ 
 
-            if (rc_speed && rc_jitter && rc_threshold && rc_pulsewidth)
+            if (rc_speed)// && rc_jitter && rc_threshold && rc_pulsewidth)
                 SettingsNP.s = IPS_OK;
             else
                 SettingsNP.s = IPS_ALERT;
@@ -409,25 +409,25 @@ bool RAYZWheel::getCommand(GET_COMMAND cmd, char *result)
                 snprintf(result, RAYZ_MAXBUF, "MaxSpeed %02d%%", simData.speed * 10);
                 break;
 
-            case INFO_JITTER:
+           /* case INFO_JITTER:
                 snprintf(result, RAYZ_MAXBUF, "Jitter %d", simData.jitter);
-                break;
+                break; */
 
             case INFO_OFFSET:
                 snprintf(result, RAYZ_MAXBUF, "P%d Offset %02d", CurrentFilter, simData.offset[CurrentFilter - 1]);
                 break;
 
-            case INFO_THRESHOLD:
+           /* case INFO_THRESHOLD:
                 snprintf(result, RAYZ_MAXBUF, "Threshold %02d", simData.threshold);
-                break;
+                break;*/
 
             case INFO_MAX_SLOTS:
                 snprintf(result, RAYZ_MAXBUF, "FilterSlots %d", 5);
                 break;
 
-            case INFO_PULSE_WIDTH:
+           /* case INFO_PULSE_WIDTH:
                 snprintf(result, RAYZ_MAXBUF, "Pulse Width %05duS", simData.pulseWidth);
-                break;
+                break;*/
         }
     }
     else
@@ -460,7 +460,11 @@ bool RAYZWheel::setCommand(SET_COMMAND cmd, int value)
         case SET_SPEED:
             snprintf(command, RAYZ_MAXBUF, "S%X", value / 10);
             break;
+		case SET_OFFSET:											//new stuff
+            snprintf(command, RAYZ_MAXBUF, "F%X", value / 10);
+            break;
 
+/*
         case SET_JITTER:
             snprintf(command, RAYZ_MAXBUF, "%s0", value > 0 ? "]" : "[");
             break;
@@ -472,7 +476,7 @@ bool RAYZWheel::setCommand(SET_COMMAND cmd, int value)
         case SET_PULSE_WITDH:
             snprintf(command, RAYZ_MAXBUF, "%s0", value > 0 ? "M" : "N");
             break;
-
+*/
         case SET_POSITION:
             snprintf(command, RAYZ_MAXBUF, "G%X", value);
             break;
