@@ -2,7 +2,6 @@
 
 #include <AccelStepper.h>
 #include <EEPROM.h>
-#include <avr/wdt.h>
 
 //Global declarations
 word filterPos[] = { 0, 700, 1400, 2100, 2800, 3500}; //play with these to course align each filter - only need to do it once.
@@ -61,8 +60,6 @@ void setup() {
   //}
   Serial.flush();
 
-  wdt_disable();
-
   // Set stepper stuff
   stepper.setCurrentPosition(0);
   stepper.setMaxSpeed(maxSpeed);    //maximum step rate
@@ -89,10 +86,10 @@ void loop() {
   inLine = Serial.readStringUntil('\n');
 
 
-  // Run debugProcedure                       -todo --- use to store changes to eprom..
+  // Store offsets to eprom..
   if ( inLine == "G0" ) {
     cmdOK = true;
-    debugProcedure();  // Go do some debugging..
+    epromSave(); //store offsets to eprom and display contents
     return;
   }
   // Product name
@@ -319,7 +316,7 @@ void motor_Off() {                                            //power down the s
 }
 
 // Show some values and reset error flag.
-void debugProcedure() {
+void epromSave() {
   int i = 0;
   word Value;
 
@@ -328,14 +325,12 @@ void debugProcedure() {
     EEPROM.write((i * 2) + 50, highByte(posOffset[i]));
     EEPROM.write((i * 2) + 51, lowByte(posOffset[i]));
   }
-  //  Serial.println("Default values written to EEPROM!!");
-
+  //  Serial.println("Current values written to EEPROM!!");
   Serial.println("\n");
   Serial.println("-------------------------------");
   Serial.print("Current Offset : ");
   Serial.println( posOffset[currPos] );
   Serial.println();
-
   Serial.println("offset values in eaprom");
   for ( i = 1; i < 6 ; i++ ) {
     Value = word( EEPROM.read(i * 2 + 50), EEPROM.read(i * 2 + 51));
