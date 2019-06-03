@@ -2,6 +2,7 @@
 
 #include <AccelStepper.h>
 #include <EEPROM.h>
+#include <avr/wdt.h>
 
 //Global declarations
 word filterPos[] = { 0, 700, 1400, 2100, 2800, 3500}; //play with these to course align each filter - only need to do it once.
@@ -60,6 +61,8 @@ void setup() {
   //}
   Serial.flush();
 
+  wdt_disable();
+
   // Set stepper stuff
   stepper.setCurrentPosition(0);
   stepper.setMaxSpeed(maxSpeed);    //maximum step rate
@@ -86,10 +89,10 @@ void loop() {
   inLine = Serial.readStringUntil('\n');
 
 
-  // Store offsets to eprom..
+  // Run debugProcedure                       -todo --- use to store changes to eprom..
   if ( inLine == "G0" ) {
     cmdOK = true;
-    epromSave(); //store offsets to eprom and display contents
+    debugProcedure();  // Go do some debugging..
     return;
   }
   // Product name
@@ -137,7 +140,7 @@ void loop() {
     Serial.println("FilterSlots 5");
   }
 
-  // Send filter offset value  - "PX Offset XXXX"
+  // Send Current filter offset value  - "PX Offset XXXX"
   if ( inLine == "O1" ) {
     cmdOK = true;
     Serial.print("P1");
@@ -145,7 +148,7 @@ void loop() {
     Serial.println( posOffset[1] );
   }
 
-  // Send filter offset value  - "PX Offset XXXX"
+  // Send Current filter offset value  - "PX Offset XXXX"
   if ( inLine == "O2" ) {
     cmdOK = true;
     Serial.print("P2");
@@ -153,7 +156,7 @@ void loop() {
     Serial.println( posOffset[2] );
   }
 
-  // Send filter offset value  - "PX Offset XXXX"
+  // Send Current filter offset value  - "PX Offset XXXX"
   if ( inLine == "O3" ) {
     cmdOK = true;
     Serial.print("P3");
@@ -162,7 +165,7 @@ void loop() {
   }
 
 
-  // Send filter offset value  - "PX Offset XXXX"
+  // Send Current filter offset value  - "PX Offset XXXX"
   if ( inLine == "O4" ) {
     cmdOK = true;
     Serial.print("P4");
@@ -171,7 +174,7 @@ void loop() {
   }
 
 
-  // Send filter offset value  - "PX Offset XXXX"
+  // Send Current filter offset value  - "PX Offset XXXX"
   if ( inLine == "O5" ) {
     cmdOK = true;
     Serial.print("P5");
@@ -190,7 +193,7 @@ void loop() {
     Serial.println(digitalRead(SENSOR));
   }
 
-  // Filter select G1 - G5 , also any "Xnnn" numerical input is handled here
+  // Filter select G1 - G5
   command = inLine.charAt(0);         // command+newPos=Goto pos newPos
   newPos = int(inLine.charAt(1) - 48); // newPos=int -48 if no input..
 
@@ -220,7 +223,7 @@ void loop() {
   if ( command == 'F' ) {
     cmdOK = true;
     newPos = currPos;
-    posOffset[currPos] = (inLine.substring(1).toInt());   //get the int value from the serial string
+    posOffset[currPos] = (inLine.substring(1).toInt());   //get the offset int value from the serial string
     Locate_Home();
     Locate_Slot_x();
     Serial.print("P");
@@ -228,9 +231,6 @@ void loop() {
     Serial.print(" Offset ");
     Serial.println( posOffset[currPos] );
   }
-  if (command == 'S' ) {
-     maxSpeed = (inLine.substring(1).toInt());   //get the int value from the serial string
-     }
 
 
   // Hard reboot --this should be a cpu reset command
@@ -319,7 +319,7 @@ void motor_Off() {                                            //power down the s
 }
 
 // Show some values and reset error flag.
-void epromSave() {
+void debugProcedure() {
   int i = 0;
   word Value;
 
@@ -328,12 +328,14 @@ void epromSave() {
     EEPROM.write((i * 2) + 50, highByte(posOffset[i]));
     EEPROM.write((i * 2) + 51, lowByte(posOffset[i]));
   }
-  //  Serial.println("Current values written to EEPROM!!");
+  //  Serial.println("Default values written to EEPROM!!");
+
   Serial.println("\n");
   Serial.println("-------------------------------");
   Serial.print("Current Offset : ");
   Serial.println( posOffset[currPos] );
   Serial.println();
+
   Serial.println("offset values in eaprom");
   for ( i = 1; i < 6 ; i++ ) {
     Value = word( EEPROM.read(i * 2 + 50), EEPROM.read(i * 2 + 51));
