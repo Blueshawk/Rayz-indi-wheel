@@ -9,6 +9,8 @@ make serial send for Fnnn = offset -- sets offset for current filter only. They 
 
 make store offsets to eprom command ---"G0" does it
 
+"Snnn" max speed setting. 400 seems about right. Slower is more torque(steppers are weird like that)
+
 
 Remove from indi driver:
   Display jitter I5 
@@ -31,8 +33,7 @@ document extra protocol commands:
 T0 = show hall effect state
 R2 = reset all offsets to zero
 
-
-offsets:
+some saved offsets:
 P1 Offset 120
 P2 Offset 300
 P3 Offset 220
