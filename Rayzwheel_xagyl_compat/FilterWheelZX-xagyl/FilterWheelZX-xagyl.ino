@@ -17,6 +17,8 @@ int CalibrationOffset = 0;               //for indi info
 int maxSpeed = 400;                      // max motor speed
 int setSpeed = maxSpeed;                      //current step speed (apparently max is used by the library?)
 int setAccel = 1000;                     //
+int jitter = 5;                      //fake jitter changes to please indi
+int threshold = 30;  // fake threshold change to please indi
 // Hall pin definition
 /*  current wiring
     A0 = d0 digital(comparator)output
@@ -45,13 +47,13 @@ AccelStepper stepper(STEPS, motorPin1, motorPin3, motorPin2, motorPin4);
 void setup() {
   pinMode(hallCom, OUTPUT);         //hall gnd
   pinMode(hallPower, OUTPUT);       //hall power
-  pinMode(SENSOR, INPUT_PULLUP);    //(A3) hall signal
+  pinMode(SENSOR, INPUT_PULLUP);           //(A3) hall signal
   pinMode(6, OUTPUT);               //motor +a
   pinMode(7, OUTPUT);               //motor -a
   pinMode(8, OUTPUT);               //motor +b
   pinMode(9, OUTPUT);               //motor -b
 
-  digitalWrite(hallCom, LOW);       // set hall gnd to 0v
+  digitalWrite(hallCom, LOW);     // set hall gnd to 0v
   digitalWrite(hallPower, HIGH);    //set hall power to 5v
 
   Serial.begin(9600);
@@ -62,18 +64,20 @@ void setup() {
 
   // Set stepper stuff
   stepper.setCurrentPosition(0);
-  stepper.setMaxSpeed(maxSpeed);      //maximum step rate
-  stepper.setSpeed(setSpeed);         //current step rate
-  stepper.setAcceleration(setAccel);  //"1000 = 100%" accellerationt to set step rate --check this in accelStepper
+  stepper.setMaxSpeed(maxSpeed);    //maximum step rate
+  stepper.setSpeed(setSpeed);       //current step rate
+  stepper.setAcceleration(setAccel);     //"1000 = 100%" accellerationt to set step rate --check this in accelStepper
 
   // read offsets from eaprom
   for ( int i = 1; i < 6 ; i++ ) {
     posOffset[i] = word( EEPROM.read(i * 2 + 50), EEPROM.read(i * 2 + 51));
   }
 
-  //startup
-  Locate_Home();                      // Rotate to index 0
-  Locate_Slot_x();                    //go to first filter offset
+  //intial calibration.
+  Locate_Home();                          // Rotate to index 0
+  Locate_Slot_x();                             //go to first filter offset
+
+
 
 } // **** END OF SETUP ****
 
@@ -83,6 +87,160 @@ void loop() {
   Serial.setTimeout(250);
   inLine = Serial.readStringUntil('\n');
 
+
+  // Go clockwise...
+  if ( inLine == ")0" ) {
+    cmdOK = true;
+    posOffset[currPos] = posOffset[currPos] + 10;
+    newPos = currPos;
+    Locate_Home();
+    Locate_Slot_x();
+    Serial.print("P");
+    Serial.print(currPos);
+    Serial.print(" Offset ");
+    Serial.println( posOffset[currPos] );
+    return;
+  }
+
+  // Go counterclockwise...  decrements offset value/ not actually reverse
+  if ( inLine == "(0" ) {
+    cmdOK = true;
+    posOffset[currPos] = posOffset[currPos] - 10;
+    newPos = currPos;
+    Locate_Home();
+    Locate_Slot_x();
+    Serial.print("P");
+    Serial.print(currPos);
+    Serial.print(" Offset ");
+    Serial.println( posOffset[currPos] );
+  }
+  // these are to be removed ********************
+
+  // Hall-sensor data..
+  if ( inLine == "T1" ) {
+    cmdOK = true;
+    Serial.print("Sensors ");
+    Serial.print(digitalRead(SENSOR));
+    Serial.print(" ");
+    Serial.println(digitalRead(SENSOR));
+  }
+
+
+  // Increase pulse width by 100uS, Displays “Pulse Width XXXXXuS”
+  if ( inLine == "M0" ) {
+    cmdOK = true;
+    PWMvalue = PWMvalue + 100;
+    Serial.print("Pulse Width ");
+    Serial.print(PWMvalue);
+    Serial.println("uS");
+  }
+
+
+  // Decrease pulse width by 100uS, Displays “Pulse Width XXXXXuS”
+  if ( inLine ==  "N0" ) {
+    cmdOK = true;
+    PWMvalue = PWMvalue - 100;
+    Serial.print("Pulse Width ");
+    Serial.print(PWMvalue);
+    Serial.println("uS");
+  }
+
+  // Decrease filter position threshold value, Displays Displays "Threshold XX"
+  if ( inLine ==  "{0" ) {
+    cmdOK = true;
+    if (threshold > 0) {
+      threshold = threshold - 10;
+    }
+    Serial.println(threshold);
+  }
+
+  // Increase filter position threshold value, Displays Displays "Threshold XX"
+  if ( inLine ==  "}0" ) {
+    cmdOK = true;
+    if (threshold < 100) {
+      threshold = threshold + 10;
+    }
+    Serial.println(threshold);
+  }
+
+  // Decrease jitter window by 1, Displays Displays “Jitter X” value 1-10.
+  if ( inLine ==  "[0" ) {
+    cmdOK = true;
+    if (jitter > 0) {
+      jitter--;
+    }
+    Serial.println(jitter);
+  }
+
+  // Increase jitter window by 1, Displays Displays “Jitter X” value 1-10.
+  if ( inLine ==  "]0" ) {
+    cmdOK = true;
+    if (jitter > 10 ) {
+      jitter++;
+    }
+    Serial.println(jitter);
+  }
+
+  // Hall-sensor data..
+  if ( inLine == "T2" ) {
+    cmdOK = true;
+    Serial.println("MidRange 520");
+  }
+
+
+  // Hall-sensor data..
+  if ( inLine == "T3" ) {
+    cmdOK = true;
+    Serial.print("RightCal ");
+    Serial.println(digitalRead(SENSOR) - digitalRead(SENSOR));
+  }
+
+  // Display the Pulse Width value - "Pulse Width XXXXXuS" : PWMvalue 0..255
+  if ( inLine == "I9" ) {
+    cmdOK = true;
+    Serial.print("Pulse Width ");  // Default 1500uS, Range 100 - 10000
+    Serial.println("4950uS");      // 10000-100/2=4950 Just a value
+  }
+
+  // Display filter position sensor threshold value - "Threshold XX"
+  if ( inLine == "I7" ) {
+    cmdOK = true;
+    Serial.println("Threshold 30");
+  }
+  // Reset Jitter value to 1, displays "Jitter 1"
+  if ( inLine == "R3" ) {
+    cmdOK = true;
+    Serial.println("Jitter 5");
+  }
+
+
+  // Reset maximum carousel rotation speed to 100%, displays "MaxSpeed 100%"
+  if ( inLine == "R4" ) {
+    cmdOK = true;
+    Serial.println("MaxSpeed 100%");
+  }
+
+
+  // Reset Threshold value to 30, displays "Threshold 30"
+  if ( inLine == "R5" ) {
+    cmdOK = true;
+    Serial.println("Threshold 30");
+  }
+
+
+  // Calibrate, No return value displayed.
+  if ( inLine == "R6" ) {
+    cmdOK = true;
+    delay(1000);
+  }
+
+  // Display the jitter value - "Jitter XX", XX = values 1-10
+  if ( inLine == "I5" ) {
+    cmdOK = true;
+    Serial.println("Jitter 5");
+  }
+
+  // ************end of to be removed **********************
 
   // Store offsets to eprom..
   if ( inLine == "G0" ) {
@@ -180,7 +338,7 @@ void loop() {
 
 
   // Hall-sensor data..
-  if ( inLine == "T0", "T1" ,"T2" ) {
+  if ( inLine == "T0" ) {
     cmdOK = true;
     Serial.print("Sensors ");
     Serial.print(digitalRead(SENSOR));
@@ -227,12 +385,12 @@ void loop() {
     Serial.println( posOffset[currPos] );
   }
   if (command == 'S' ) {
-     maxSpeed = (inLine.substring(1).toInt());   //get the int value from the serial string
-     }
+    maxSpeed = (inLine.substring(1).toInt());   //get the int value from the serial string
+  }
 
 
   // Hard reboot --this should be a cpu reset command
-  if ( inLine == "R0" ) { 
+  if ( inLine == "R0" ) {
     //Good luck.
   }
 
@@ -247,17 +405,19 @@ void loop() {
   }
 
 
-  // Reset all calibration values to 0. Handy for first run/calibrating, if you then save zeroes to eprom with G0
+  // Reset all calibration values to 0. Handy for first run/calibrating,
+  // if you then save zeroes to eprom with G0
   if ( inLine == "R2" ) {
     cmdOK = true;
     currPos = 1;
     for ( int i = 1; i < 6 ; i++ ) {
       posOffset[i] = 0;
       if (i == 5) {
-        Serial.println("Offsets set to zero but not stored. Store new offsets with G0");
+        Serial.println("Calibration Removed");
       }
     }
-  }
+  } //end of inline commands
+
 
   // If command not recognized, flush buffer and wait for next command..
   if ( cmdOK ) {
@@ -298,7 +458,7 @@ void Locate_Home() {
 // Always run wheel the same direction to avoid backlash issues.
 
 void Locate_Slot_x() {
-  if ( filterPos[newPos] < filterPos[currPos] ) {            //prevent backwards movement to avoid backlash errors
+  if ( filterPos[newPos] < filterPos[currPos] ) { //prevent backwards movement to avoid backlash errors
     Locate_Home();
   }
   int pos_ofs = filterPos[newPos] + posOffset[newPos];
