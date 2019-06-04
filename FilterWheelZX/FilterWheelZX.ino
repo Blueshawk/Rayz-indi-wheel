@@ -45,13 +45,13 @@ AccelStepper stepper(STEPS, motorPin1, motorPin3, motorPin2, motorPin4);
 void setup() {
   pinMode(hallCom, OUTPUT);         //hall gnd
   pinMode(hallPower, OUTPUT);       //hall power
-  pinMode(SENSOR, INPUT_PULLUP);           //(A3) hall signal
+  pinMode(SENSOR, INPUT_PULLUP);    //(A3) hall signal
   pinMode(6, OUTPUT);               //motor +a
   pinMode(7, OUTPUT);               //motor -a
   pinMode(8, OUTPUT);               //motor +b
   pinMode(9, OUTPUT);               //motor -b
 
-  digitalWrite(hallCom, LOW);     // set hall gnd to 0v
+  digitalWrite(hallCom, LOW);       // set hall gnd to 0v
   digitalWrite(hallPower, HIGH);    //set hall power to 5v
 
   Serial.begin(9600);
@@ -62,20 +62,18 @@ void setup() {
 
   // Set stepper stuff
   stepper.setCurrentPosition(0);
-  stepper.setMaxSpeed(maxSpeed);    //maximum step rate
-  stepper.setSpeed(setSpeed);       //current step rate
-  stepper.setAcceleration(setAccel);     //"1000 = 100%" accellerationt to set step rate --check this in accelStepper
+  stepper.setMaxSpeed(maxSpeed);      //maximum step rate
+  stepper.setSpeed(setSpeed);         //current step rate
+  stepper.setAcceleration(setAccel);  //"1000 = 100%" accellerationt to set step rate --check this in accelStepper
 
   // read offsets from eaprom
   for ( int i = 1; i < 6 ; i++ ) {
     posOffset[i] = word( EEPROM.read(i * 2 + 50), EEPROM.read(i * 2 + 51));
   }
 
-  //intial calibration.
-  Locate_Home();                          // Rotate to index 0
-  Locate_Slot_x();                             //go to first filter offset
-
-
+  //startup
+  Locate_Home();                      // Rotate to index 0
+  Locate_Slot_x();                    //go to first filter offset
 
 } // **** END OF SETUP ****
 
@@ -182,7 +180,7 @@ void loop() {
 
 
   // Hall-sensor data..
-  if ( inLine == "T0" ) {
+  if ( inLine == "T0", "T1" ,"T2" ) {
     cmdOK = true;
     Serial.print("Sensors ");
     Serial.print(digitalRead(SENSOR));
