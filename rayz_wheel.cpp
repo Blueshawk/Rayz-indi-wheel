@@ -77,9 +77,9 @@ RAYZWheel::RAYZWheel()
 {
     simData.position   = 1;
     simData.speed      = 0xA;
-   // simData.pulseWidth = 1500;
-  //  simData.threshold  = 30;
-   // simData.jitter     = 1;
+    simData.pulseWidth = 1500;
+    simData.threshold  = 30;
+    simData.jitter     = 1;
     simData.offset[0] = simData.offset[1] = simData.offset[2] = simData.offset[3] = simData.offset[4] = 0;
     strncpy(simData.product, "Xagyl FW5125VX", 16);
     strncpy(simData.version, "FW3.1.5", 16);
@@ -115,10 +115,10 @@ bool RAYZWheel::initProperties()
 
     // Settings
     IUFillNumber(&SettingsN[0], "Speed", "Speed", "%.f", 0, 100, 10., 0.);
-    IUFillNumber(&SettingsN[1], "Store", "Jitter", "%.f", 0, 10, 1., 0.);
-   // IUFillNumber(&SettingsN[2], "Threshold", "Threshold", "%.f", 0, 100, 10., 0.);
-   // IUFillNumber(&SettingsN[3], "Pulse Width", "Pulse", "%.f", 100, 10000, 100., 0.);
-    IUFillNumberVector(&SettingsNP, SettingsN, 1, getDeviceName(), "Settings", "Settings", SETTINGS_TAB, IP_RW, 0, IPS_IDLE);
+    //IUFillNumber(&SettingsN[1], "Jitter", "Jitter", "%.f", 0, 10, 1., 0.);
+    //IUFillNumber(&SettingsN[2], "Threshold", "Threshold", "%.f", 0, 100, 10., 0.);
+    //IUFillNumber(&SettingsN[3], "Pulse Width", "Pulse", "%.f", 100, 10000, 100., 0.);
+    IUFillNumberVector(&SettingsNP, SettingsN, 1, getDeviceName(), "Settings", "Settings", MAIN_CONTROL_TAB, IP_RW, 0, IPS_IDLE);
 
     // Reset
    // IUFillSwitch(&ResetS[0], "Reboot", "Reboot", ISS_OFF);
@@ -139,14 +139,15 @@ bool RAYZWheel::updateProperties()
     if (isConnected())
     {
         getStartupData();
-
-       // defineSwitch(&ResetSP);
+//defines type of panel controls switch,Number,Text
+        defineSwitch(&ResetSP);  
         defineNumber(&OffsetNP);
         defineText(&FirmwareInfoTP);
         defineNumber(&SettingsNP);
     }
     else
     {
+//erases controls when not connected, end result, a snazzy looking "load" of panel controls on connection.
         deleteProperty(ResetSP.name);
         deleteProperty(OffsetNP.name);
         deleteProperty(FirmwareInfoTP.name);
@@ -160,7 +161,7 @@ bool RAYZWheel::Handshake()
 {
     char resp[RAYZ_MAXBUF]={0};
     bool rc = getCommand(INFO_FIRMWARE_VERSION, resp);
-
+//If Firmware reads correctly "FW" then serial must be connected okay.
     if (rc)
     {
         int fwver = 0;
@@ -352,14 +353,15 @@ bool RAYZWheel::ISNewNumber(const char *dev, const char *name, double values[], 
 
 void RAYZWheel::initOffset()
 {
+//create the offset controls
     delete [] OffsetN;
     OffsetN = new INumber[static_cast<uint8_t>(FilterSlotN[0].max)];
     char offsetName[MAXINDINAME], offsetLabel[MAXINDILABEL];
     for (int i = 0; i < FilterSlotN[0].max; i++)
     {
-        snprintf(offsetName, MAXINDINAME, "OFFSET_%d", i + 1);
+        snprintf(offsetName, MAXINDINAME, "OFFSET_%d", i + 1);											
         snprintf(offsetLabel, MAXINDINAME, "#%d Offset", i + 1);
-        IUFillNumber(OffsetN + i, offsetName, offsetLabel, "%.f", -99, 99, 10, 0);
+        IUFillNumber(OffsetN + i, offsetName, offsetLabel, "%.f", 0, 9999, 10, 0); 
     }
 
     IUFillNumberVector(&OffsetNP, OffsetN, FilterSlotN[0].max, getDeviceName(), "Offsets", "", FILTER_TAB, IP_RW, 0,

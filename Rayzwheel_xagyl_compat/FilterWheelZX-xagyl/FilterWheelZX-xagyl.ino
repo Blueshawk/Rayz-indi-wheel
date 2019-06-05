@@ -1,4 +1,4 @@
-//Rayz_filter_wheel. ver .1
+//Rayz_filter_wheel. ver .1 currently compatable with indi-Xagyl
 
 #include <AccelStepper.h>
 #include <EEPROM.h>
@@ -257,7 +257,7 @@ void loop() {
   // Firmware version
   if ( inLine == "I1" ) {
     cmdOK = true;
-    Serial.println("0.98");
+    Serial.println("FW3.1.5");
   }
   // Current filter pos
   if ( inLine == "I2" ) {
@@ -269,7 +269,7 @@ void loop() {
   // Serial number
   if ( inLine == "I3" ) {
     cmdOK = true;
-    Serial.println("sn.000001");
+    Serial.println("sn.001");
   }
 
   // Display the maximum rotation speed - "MaxSpeed XXX%"
