@@ -257,7 +257,7 @@ void loop() {
   // Firmware version
   if ( inLine == "I1" ) {
     cmdOK = true;
-    Serial.println("FW3.1.5");
+    Serial.println("FW3.1.5"); //must begin with FW and have only digits after. (RC= "FW" %d)
   }
   // Current filter pos
   if ( inLine == "I2" ) {

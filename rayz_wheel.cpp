@@ -170,13 +170,13 @@ bool RAYZWheel::Handshake()
         if (fw_rc != 1)
             fw_rc = sscanf(resp, "FW %d", &fwver);
 
-        if (fw_rc > 0)
+          if (fw_rc > 0)
         {
             firmwareVersion = fwver;
 
             // We don't have pulse width for version < 3
-            if (firmwareVersion < 3)
-                SettingsNP.nnp--;
+            //if (firmwareVersion < 3)
+              //  SettingsNP.nnp--;
 
             if (getMaxFilterSlots())
             {
