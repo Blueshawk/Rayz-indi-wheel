@@ -170,13 +170,13 @@ bool RAYZWheel::Handshake()
         if (fw_rc != 1)
             fw_rc = sscanf(resp, "FW %d", &fwver);
 
-        if (fw_rc > 0)
+          if (fw_rc > 0)
         {
             firmwareVersion = fwver;
 
             // We don't have pulse width for version < 3
-            if (firmwareVersion < 3)
-                SettingsNP.nnp--;
+            //if (firmwareVersion < 3)
+              //  SettingsNP.nnp--;
 
             if (getMaxFilterSlots())
             {
@@ -515,7 +515,7 @@ bool RAYZWheel::setCommand(SET_COMMAND cmd, int value)
                 snprintf(response, RAYZ_MAXBUF, "Speed=%3d%%", simData.speed * 10);
                 break;
 
-            case SET_JITTER:
+         /*   case SET_JITTER:
                 simData.jitter += (value > 0 ? 1 : -1);
                 if (simData.jitter > SettingsN[SET_JITTER].max)
                     simData.jitter = SettingsN[SET_JITTER].max;
@@ -544,7 +544,7 @@ bool RAYZWheel::setCommand(SET_COMMAND cmd, int value)
 
                 snprintf(response, RAYZ_MAXBUF, "pulseWidth %d", simData.pulseWidth);
                 break;
-
+*/
             default:
                 break;
         }
@@ -626,14 +626,14 @@ bool RAYZWheel::getFirmwareInfo()
 bool RAYZWheel::getSettingInfo()
 {
     bool rc1 = getMaximumSpeed();
-    bool rc2 = getJitter();
-    bool rc3 = getThreshold();
+   // bool rc2 = getJitter();
+   // bool rc3 = getThreshold();
     bool rc4 = true;
 
     if (firmwareVersion >= 3)
         rc4 = getPulseWidth();
 
-    return (rc1 && rc2 && rc3 && rc4);
+    return (rc1 && rc4); //&& rc2 && rc3 && rc4);
 }
 
 bool RAYZWheel::getFilterPosition()
@@ -672,7 +672,7 @@ bool RAYZWheel::getMaximumSpeed()
     return false;
 }
 
-bool RAYZWheel::getJitter()
+/* bool RAYZWheel::getJitter()
 {
     char resp[RAYZ_MAXBUF]={0};
 
@@ -724,7 +724,7 @@ bool RAYZWheel::getPulseWidth()
         return true;
     }
     return false;
-}
+} */
 
 bool RAYZWheel::getMaxFilterSlots()
 {
@@ -744,7 +744,7 @@ bool RAYZWheel::getMaxFilterSlots()
     return false;
 }
 
-bool RAYZWheel::reset(int value)
+/* bool RAYZWheel::reset(int value)
 {
     int nbytes_written = 0, rc = -1;
     char errstr[MAXRBUF];
@@ -769,7 +769,7 @@ bool RAYZWheel::reset(int value)
     getFilterPosition();
 
     return true;
-}
+}*/
 
 bool RAYZWheel::setOffset(int filter, int value)
 {
@@ -780,10 +780,10 @@ bool RAYZWheel::setOffset(int filter, int value)
 
     tcflush(PortFD, TCIOFLUSH);
 
-    snprintf(command, RAYZ_MAXBUF, "%s", value > 0 ? "(" : ")");
+    snprintf(command, RAYZ_MAXBUF, "%s", value); //> 0 ? "(" : ")");
 
-    LOGF_DEBUG("CMD (%s)", command);
-
+    LOGF_DEBUG("CMD (%s,%s)", command, value);
+	
     if (!isSimulation() && (rc = tty_write(PortFD, command, strlen(command), &nbytes_written)) != TTY_OK)
     {
         tty_error_msg(rc, errstr, MAXRBUF);
