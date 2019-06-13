@@ -24,9 +24,9 @@ typedef struct
 {
     int speed;
     int position;
-    int pulseWidth;
-    int jitter;
-    int threshold;
+    //int pulseWidth;
+    //int jitter;
+    //int threshold;
     int offset[5];
     char product[16];
     char version[16];
@@ -42,13 +42,13 @@ class RAYZWheel : public INDI::FilterWheel
         INFO_FILTER_POSITION,
         INFO_SERIAL_NUMBER,
         INFO_MAX_SPEED,
-        INFO_JITTER,
+       // INFO_JITTER,
         INFO_OFFSET,
-        INFO_THRESHOLD,
+       // INFO_THRESHOLD,
         INFO_MAX_SLOTS,
-        INFO_PULSE_WIDTH
+       // INFO_PULSE_WIDTH
     } GET_COMMAND;
-    typedef enum { SET_SPEED, SET_JITTER, SET_THRESHOLD, SET_PULSE_WITDH, SET_POSITION } SET_COMMAND;
+    typedef enum { SET_SPEED, SET_POSITION } SET_COMMAND; //SET_JITTER, SET_THRESHOLD, SET_PULSE_WITDH,
 
     RAYZWheel();
     virtual ~RAYZWheel();
@@ -79,12 +79,13 @@ class RAYZWheel : public INDI::FilterWheel
     bool getSettingInfo();
 
     bool getFilterPosition();
-    bool getMaximumSpeed();
+	bool getMaxFilterSlots();
+ /* bool getMaximumSpeed();
     bool getJitter();
     bool getThreshold();
-    bool getMaxFilterSlots();
-    bool getPulseWidth();
-
+    bool getPulseWidth();*/
+  
+   
     // Calibration offset
     bool getOffset(int filter);
     bool setOffset(int filter, int value);

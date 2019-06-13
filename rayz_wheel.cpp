@@ -784,6 +784,7 @@ bool RAYZWheel::setOffset(int filter, int value)
 
     LOGF_DEBUG("CMD (%s,%s)", command, value);
 	
+	//Send filter command and offset to serial
     if (!isSimulation() && (rc = tty_write(PortFD, command, strlen(command), &nbytes_written)) != TTY_OK)
     {
         tty_error_msg(rc, errstr, MAXRBUF);
