@@ -1,0 +1,14 @@
+.
+libindi
+libindi/libs
+libindi/libs/dsp
+libindi/libs/fpack
+libindi/libs/indibase
+libindi/libs/indibase/alignment
+libindi/libs/indibase/connectionplugins
+libindi/libs/lx
+libindi/libs/stream
+libindi/libs/stream/encoder
+libindi/libs/stream/recorder
+libindi/libs/webcam
+libindi/libs/webcam/v4l2_decode

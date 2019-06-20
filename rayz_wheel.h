@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "indibase/indifilterwheel.h"
+#include "indifilterwheel.h"
 
 typedef struct
 {
@@ -48,7 +48,7 @@ class RAYZWheel : public INDI::FilterWheel
         INFO_MAX_SLOTS,
        // INFO_PULSE_WIDTH
     } GET_COMMAND;
-    typedef enum { SET_SPEED, SET_POSITION } SET_COMMAND; //SET_JITTER, SET_THRESHOLD, SET_PULSE_WITDH,
+    typedef enum { SET_SPEED, SET_POSITION, SET_OFFSET} SET_COMMAND; //SET_JITTER, SET_THRESHOLD, SET_PULSE_WITDH,
 
     RAYZWheel();
     virtual ~RAYZWheel();
@@ -80,8 +80,8 @@ class RAYZWheel : public INDI::FilterWheel
 
     bool getFilterPosition();
 	bool getMaxFilterSlots();
- /* bool getMaximumSpeed();
-    bool getJitter();
+    bool getMaximumSpeed();
+   /* bool getJitter();
     bool getThreshold();
     bool getPulseWidth();*/
   

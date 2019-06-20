@@ -1,7 +1,7 @@
 
 /* Custom DIY filter wheel by Ray Wells with all props to Jasem Mutlaq, and anyone else who developed previously.
 
-/*******************************************************************************
+*******************************************************************************
   Copyright(c) 2015 Jasem Mutlaq. All rights reserved.
 
  This library is free software; you can redistribute it and/or
@@ -77,9 +77,9 @@ RAYZWheel::RAYZWheel()
 {
     simData.position   = 1;
     simData.speed      = 0xA;
-    simData.pulseWidth = 1500;
-    simData.threshold  = 30;
-    simData.jitter     = 1;
+   // simData.pulseWidth = 1500;
+   // simData.threshold  = 30;
+   // simData.jitter     = 1;
     simData.offset[0] = simData.offset[1] = simData.offset[2] = simData.offset[3] = simData.offset[4] = 0;
     strncpy(simData.product, "Xagyl FW5125VX", 16);
     strncpy(simData.version, "FW3.1.5", 16);
@@ -271,7 +271,7 @@ bool RAYZWheel::ISNewNumber(const char *dev, const char *name, double values[], 
 
         if (strcmp(SettingsNP.name, name) == 0)
         {
-            double newSpeed = 0, newJitter = 0, newThreshold = 0, newPulseWidth = 0;
+            double newSpeed = 0;// newJitter = 0, newThreshold = 0, newPulseWidth = 0;
             for (int i = 0; i < n; i++)
             {
                 if (strcmp(names[i], SettingsN[SET_SPEED].name) == 0)
@@ -465,7 +465,6 @@ bool RAYZWheel::setCommand(SET_COMMAND cmd, int value)
 		case SET_OFFSET:											//new stuff
             snprintf(command, RAYZ_MAXBUF, "F%X", value / 10);
             break;
-
 /*
         case SET_JITTER:
             snprintf(command, RAYZ_MAXBUF, "%s0", value > 0 ? "]" : "[");
@@ -630,8 +629,8 @@ bool RAYZWheel::getSettingInfo()
    // bool rc3 = getThreshold();
     bool rc4 = true;
 
-    if (firmwareVersion >= 3)
-        rc4 = getPulseWidth();
+    //if (firmwareVersion >= 3)
+     //   rc4 = getPulseWidth();
 
     return (rc1 && rc4); //&& rc2 && rc3 && rc4);
 }
@@ -780,7 +779,7 @@ bool RAYZWheel::setOffset(int filter, int value)
 
     tcflush(PortFD, TCIOFLUSH);
 
-    snprintf(command, RAYZ_MAXBUF, "%s", value); //> 0 ? "(" : ")");
+    snprintf(command, RAYZ_MAXBUF, "%d", value);       //> 0 ? "(" : ")");
 
     LOGF_DEBUG("CMD (%s,%s)", command, value);
 	
