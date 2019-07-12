@@ -52,10 +52,10 @@ void setup() {
   pinMode(hallCom, OUTPUT);         //hall gnd
   pinMode(hallPower, OUTPUT);       //hall power
   pinMode(SENSOR, INPUT_PULLUP);           //(A3) hall signal
-  pinMode(6, OUTPUT);               //motor +a
-  pinMode(7, OUTPUT);               //motor -a
-  pinMode(8, OUTPUT);               //motor +b
-  pinMode(9, OUTPUT);               //motor -b
+  pinMode(motorPin1, OUTPUT);               //motor +a
+  pinMode(motorPin2, OUTPUT);               //motor -a
+  pinMode(motorPin3, OUTPUT);               //motor +b
+  pinMode(motorPin4, OUTPUT);               //motor -b
 
   digitalWrite(hallCom, LOW);     // set hall gnd to 0v
   digitalWrite(hallPower, HIGH);    //set hall power to 5v
@@ -471,10 +471,10 @@ void Locate_Slot_x() {
 }
 
 void motor_Off() {                                            //power down the stepper to save battery
-  digitalWrite(6, LOW);
-  digitalWrite(7, LOW);
-  digitalWrite(8, LOW);
-  digitalWrite(9, LOW);
+  digitalWrite(motorPin1, LOW);
+  digitalWrite(motorPin2, LOW);
+  digitalWrite(motorPin3, LOW);
+  digitalWrite(motorPin4, LOW);
   return;
 }
 
