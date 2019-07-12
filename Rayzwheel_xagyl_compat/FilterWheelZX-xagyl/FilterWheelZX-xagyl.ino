@@ -4,7 +4,7 @@
 #include <EEPROM.h>
 
 //Global declarations
-word filterPos[] = { 0, 700, 1400, 2100, 2800, 3500}; //play with these to course align each filter - only need to do it once.
+word filterPos[] = { 0, 200, 600, 1000, 1400, 1800}; //play with these to course align each filter - only need to do it once.
 word posOffset[] = { 0, 0, 0, 0, 0, 0 };
 bool Error = false;                      // Error flag
 String inLine;                           // Current command.
@@ -20,7 +20,11 @@ int setAccel = 1000;                     //
 int jitter = 5;                      //fake jitter changes to please indi
 int threshold = 30;  // fake threshold change to please indi
 // Hall pin definition
-/*  current wiring
+/*  
+ *   reedsw. wiring
+ *   a1 = common
+ *   a3 = input --pullup
+ *   hall effect wiring
     A0 = d0 digital(comparator)output
     A1 = vcc
     A2 = gnd
@@ -28,18 +32,18 @@ int threshold = 30;  // fake threshold change to please indi
 */
 
 const int SENSOR = A3;       // PIN A3 = Hall effect switch - onboard comparator with predefined value (red)
-const int hallPower = A1; //(a1 orig)    // PIN A1 = Hall effect supply - pull high   (blue)
-const int hallCom  = A2;  //(a2 orig)   // PIN A2 = Hall effect common - pull low     (black)
+const int hallPower = A2; //(a1 orig)    // PIN A1 = Hall effect supply - pull high   (blue)
+const int hallCom  = A1;  //(a2 orig)   // PIN A2 = Hall effect common - pull low     (black)
 const int d0 = A0;           // hall effect analog input - not used 2/18/18 (green)
 
 // Motor definitions
 #define STEPS 4                        // 28BYJ-48 steps 4 or 8
 
 // Motor pin definitions
-#define motorPin1  9         //6 IN1 on ULn2003
-#define motorPin2  6         //9 IN2 on ULn2003
-#define motorPin3  8         //7 IN3 on ULn2003
-#define motorPin4  7         //8 IN4 on ULn2003
+#define motorPin1 22// 9         //6 IN1 on ULn2003
+#define motorPin2 21 // 6         //9 IN2 on ULn2003
+#define motorPin3 23// 8         //7 IN3 on ULn2003
+#define motorPin4 20 // 7         //8 IN4 on ULn2003
 
 // Initialize with pin sequence IN1-IN3-IN2-IN4 for using the AccelStepper with 28BYJ-48
 AccelStepper stepper(STEPS, motorPin1, motorPin3, motorPin2, motorPin4);
@@ -114,7 +118,7 @@ void loop() {
     Serial.print(" Offset ");
     Serial.println( posOffset[currPos] );
   }
-  // these are to be removed ********************
+  
 
   // Hall-sensor data..
   if ( inLine == "T1" ) {
@@ -239,8 +243,6 @@ void loop() {
     cmdOK = true;
     Serial.println("Jitter 5");
   }
-
-  // ************end of to be removed **********************
 
   // Store offsets to eprom..
   if ( inLine == "G0" ) {
