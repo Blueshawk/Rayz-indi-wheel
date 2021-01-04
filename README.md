@@ -13,14 +13,14 @@ I used header pins to connect the driver board directly to the nano to reduce wi
 
 Setup filter positions using a serial terminal like the one in Ardunio ide.
   - each filter offset can be entered as "Fnnnn" and it will change the position offset for the currently selected filter, then move to show the new position after passing home. This makes desktop setup easy for different motor/drive assemblies.
-    - "G0" saves the offsets to eprom, and they are loaded from eprom on restart. 
+  - "G0" saves the offsets to eprom, and they are loaded from eprom on restart. 
 
 
 Whats new?: 
- -Cancelled driver development and decided to make it compatable with the Zagyl wheel protocol used in indi_zagyl_wheel.
- -Renamed repository so it doesn't show on indilib searches and derail new users.
+ - Cancelled driver development and decided to make it compatable with the Zagyl wheel protocol used in indi_zagyl_wheel.
+ - Renamed repository so it doesn't show on indilib searches and derail new users.
 
 
 todo:
-- make a protocol command list 
+- make a protocol command list, instructions example pinout and photos. 
 - have head screwed on tighter so I don't leave half baked code laying around for some noob to find
