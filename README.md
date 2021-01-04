@@ -1,4 +1,4 @@
-# indi-wheel
+# Rayz-indi-wheel
    A custom Arduino controlled, Indi compatible DIY filter wheel for remote astronomy/AP 
 
 By: Ray Wells
@@ -17,7 +17,10 @@ Setup filter positions using a serial terminal like the one in Ardunio ide.
 
 
 Whats new?: 
-   
-Cancelled driver development and decided to make it compatable with the Zagyl wheel protocol used in indi_zagyl_wheel.
+ -Cancelled driver development and decided to make it compatable with the Zagyl wheel protocol used in indi_zagyl_wheel.
+ -Renamed repository so it doesn't show on indilib searches and derail new users.
 
-todo - make a protocol command list
+
+todo:
+- make a protocol command list 
+- have head screwed on tighter so I don't leave half baked code laying around for some noob to find
