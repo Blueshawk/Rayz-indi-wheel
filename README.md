@@ -15,5 +15,4 @@ Whats new?:
     - Offsets can now be entered as "Fnnnn" and will change the position offset for the currently selected filter.
     - "G0" now saves the offsets to eprom, and they are loaded from eprom on restart. Many unused commands have been removed. 
 
-Indi compatability: A new driver is being written to match my changed(improved?) protocols.
-
+Cancelled driver development and decided to make it compatable with the Zagyl wheel ptorocol used in indi_zagyl_wheel.
