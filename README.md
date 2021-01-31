@@ -43,10 +43,10 @@ Reed switch wiring:
 
  --OR--
  
-Hall effect wiring using comparator card:
+Hall effect transistor(HET) wiring using comparator card:
     A1 = common
-    A2 = Vcc
-    A3 = d0 digital(comparator)output
+    A2 = Vcc(5v)
+    A3 = d0 digital output from HET 0-5v
     
 Whats new?: 
  - Cancelled driver development and decided to make it compatable with the Zagyl wheel protocol used in indi_zagyl_wheel.
@@ -58,3 +58,5 @@ todo:
 - have head screwed on tighter so I don't leave half baked code laying around for some noob to find.
 ++I can't really recommend using more than one cheapduino in a system as they have no serial number I.e (0) to make a proper udev rule. I can recommend a teensy from France.
 More info as I get time... 
+
+Some pics.
